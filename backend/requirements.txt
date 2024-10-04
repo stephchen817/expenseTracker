@@ -1,0 +1,6 @@
+Flask==3.0.3
+Flask-CORS==3.0.10  
+psycopg2-binary==2.9.9
+dotenv
+Response
+jsonify==0.5

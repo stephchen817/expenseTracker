@@ -4,3 +4,4 @@ psycopg2-binary==2.9.9
 dotenv
 Response
 jsonify==0.5
+pandas==2.2.3

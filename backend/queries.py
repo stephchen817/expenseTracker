@@ -1,4 +1,6 @@
+from psycopg2 import OperationalError, InterfaceError, ProgrammingError
 import db_connection
+import pandas as pd
 from flask import jsonify
 
 fetch_all_query = """ SELECT * from expense """
@@ -7,26 +9,59 @@ insert_query = """ INSERT INTO  expense (category_name, amount, account_type, de
 update_query = """ UPDATE expense SET category_name = %s, amount = %s, 
                 account_type = %s, description = %s WHERE expense_id = %s"""
 delete_query = """ DELETE FROM expense where expense_id = %s """
+sum_query = """ SELECT SUM(amount) FROM expense """
 
-connection = db_connection.get_db_connection()
-cursor = connection.cursor()
 
 # for fetching all records in the database
 def fetch_all():
+    connection = None
+    cursor = None
+
     try: 
+        connection = db_connection.get_db_connection()
+        cursor = connection.cursor()
+
         cursor.execute(fetch_all_query)
         records = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return jsonify({'response': 'Succesfully fetched all records!', 'data': records})
+
+        records_df = pd.DataFrame(records, columns=['category', 'amount', 'account', 'description', 'expenseId'])
+        records_json = records_df.to_json(orient="records")
+
+        return jsonify({'response': 'Succesfully fetched all records!', 'data': records_json})
     
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    except (OperationalError, InterfaceError) as e:
+        print(f"Database error: {e}")
+        
+        try:
+            connection = db_connection.get_db_connection()
+            cursor = connection.cursor()
+
+            cursor.execute(fetch_all_query)
+            records = cursor.fetchall()
+
+            records_df = pd.DataFrame(records, columns=['category', 'amount', 'account', 'description', 'expenseId'])
+            records_json = records_df.to_json(orient="records")
+
+            return jsonify({'response': 'Succesfully fetched all records!', 'data': records_json})
+
+        except Exception as e:
+            print(f"Reconnection failed: {e}")
+            return jsonify({'response': 'Failed to fetch records after reconnection attempt.', 'error': str(e)})
     
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+        
 # insert new record in the database
-def create_expsense(category_name, amount, account_type, description):
+def create_expsense(categoryName, amount, accountType, description):
+    connection = db_connection.get_db_connection()
+    cursor = connection.cursor()
+
     try:
-        cursor.execute(insert_query, (category_name, amount, account_type, description))
+        cursor.execute(insert_query, (categoryName, amount, accountType, description))
         connection.commit()
         cursor.close()
         connection.close()
@@ -37,9 +72,12 @@ def create_expsense(category_name, amount, account_type, description):
 
     
 # edit record in database
-def update_expense(id, category_name, amount, account_type, description):
+def update_expense(id, categoryName, amount, accountType, description):
+    connection = db_connection.get_db_connection()
+    cursor = connection.cursor()
+
     try:
-        cursor.execute(update_query, (category_name, amount, account_type, description, id))
+        cursor.execute(update_query, (categoryName, amount, accountType, description, id))
         connection.commit()
         cursor.close()
         connection.close()
@@ -50,14 +88,55 @@ def update_expense(id, category_name, amount, account_type, description):
 
 # delete record in database
 def delete_expense(id):
+    connection = None
+    cursor = None
+
     try:
-        cursor.execute(delete_query, (id))
+        connection = db_connection.get_db_connection()
+        cursor = connection.cursor()
+        
+        cursor.execute(delete_query, [id])
         connection.commit()
+
         cursor.close()
         connection.close()
-        return jsonify({'response': 'Record deleted successfully!'}), 201
+
+        return jsonify({'response': 'Record deleted successfully!'}), 204
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+def sum_expenses():
+    connection = None
+    cursor = None
+
+    try: 
+        connection = db_connection.get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(sum_query)
+        sum = cursor.fetchall()
+
+        return jsonify({'response': 'Succesfully fetched sum of expenses!', 'data': sum})
     
+    except (OperationalError, InterfaceError) as e:
+        print(f"Database error: {e}")
+        
+        try:
+            connection = db_connection.get_db_connection()
+            cursor = connection.cursor()
+
+            cursor.execute(sum_query)
+            sum = cursor.fetchall()
+
+            return jsonify({'response': 'Succesfully fetched sum of expenses!', 'sum': sum})
+
+        except Exception as e:
+            print(f"Reconnection failed: {e}")
+            return jsonify({'response': 'Failed to fetch total of expenses after reconnection attempt.', 'error': str(e)})
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()    

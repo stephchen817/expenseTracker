@@ -3,12 +3,11 @@ import axios from 'axios';
 
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 
-function ExpensesTable() {
+function ExpensesTable({ onTotalUpdate }) {
     const [expenses, setExpenses] = useState([]);
     const [sum, setSum] = useState(0);
     const [error, setError] = useState(null);
@@ -23,6 +22,7 @@ function ExpensesTable() {
     });
     const [selectedIds, setSelectedIds] = useState([]);
     const [editExpenseId, setEditExpenseId] = useState(null);
+    const [validate, setValidate] = useState('');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -40,6 +40,18 @@ function ExpensesTable() {
         }
     };
 
+    const validateFields = () => {
+        const { category, amount, account } = newExpense;
+        if (!category || !amount || !account) {
+            alert('Category, amount, and account are required fields!');
+            setValidate('Please fill up required fields!');
+            return false;
+        }
+        setValidate('');
+        return true;
+    };
+
+
     const addRow = () => {
         setShowNewRow(true);
     };
@@ -54,7 +66,7 @@ function ExpensesTable() {
 
         setNewExpense({
             category: expense.category,
-            amount: String(expense.amount).replace('₱',''),
+            amount: String(expense.amount).replace('₱', ''),
             account: expense.account,
             description: expense.description
         });
@@ -94,18 +106,21 @@ function ExpensesTable() {
     }, []);
 
     const createRecord = async () => {
-        try {
-            const response = await axios.post('http://127.0.0.1:5000/createRecord', newExpense);
-            alert('Record saved successfully!');
-            setData([...data, newExpense]);
-            setNewExpense({ category: '', amount: '', account: '', description: '' });
-            setShowNewRow(false);
+        if (validateFields()) {
+            try {
+                const response = await axios.post('http://127.0.0.1:5000/createRecord', newExpense);
+                alert('Record saved successfully!');
+                setData([...data, newExpense]);
+                setNewExpense({ category: '', amount: '', account: '', description: '' });
+                setShowNewRow(false);
 
-            // Automatically refreshes the table when a new record is added
-            fetchAllRecords();
-        } catch (error) {
-            console.error('Error saving data:', error);
-            alert('Failed to save record!')
+                // Automatically refreshes the table when a new record is added
+                fetchAllRecords();
+                onTotalUpdate();
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('Failed to save record!')
+            }
         }
     };
 
@@ -119,6 +134,7 @@ function ExpensesTable() {
 
             // Automatically refreshes the table when a new record is deleted
             fetchAllRecords();
+            onTotalUpdate();
         } catch (error) {
             console.error('Error deleting record:', error);
             alert('Failed to delete record!');
@@ -126,16 +142,22 @@ function ExpensesTable() {
     };
 
     const editRecord = async () => {
-        try {
-            const response = await axios.post(`http://127.0.0.1:5000/editRecord/${editExpenseId}`, newExpense);
-            alert('Record successfully updated!');
-            fetchAllRecords();
-            setEditExpenseId(null);
-            setNewExpense({ category: '', amount: '', account: '', description: '' });
-            setSelectedIds([]);
-        } catch (error) {
-            console.error('Error updating record:', error);
-            alert('Failed to update record!');
+        if (validateFields()) {
+            try {
+                const response = await axios.post(`http://127.0.0.1:5000/editRecord/${editExpenseId}`, newExpense);
+                alert('Record successfully updated!');
+
+                // Automatically refreshes the records and the total displayed
+                fetchAllRecords();
+                onTotalUpdate();
+
+                setEditExpenseId(null);
+                setNewExpense({ category: '', amount: '', account: '', description: '' });
+                setSelectedIds([]);
+            } catch (error) {
+                console.error('Error updating record:', error);
+                alert('Failed to update record!');
+            }
         }
     };
 
@@ -313,21 +335,21 @@ function ExpensesTable() {
                                             </InputGroup>
                                         </td>
                                         <td>
-                                                <Button 
-                                                    className="primaryButton"
-                                                    id="saveButton"
-                                                    onClick={createRecord}
-                                                >
-                                                    <i class="bi bi-floppy-fill" /> Save
-                                                </Button>
-                                                <Button 
-                                                    className="dangerButton"
-                                                    id="cancelButton"
-                                                    variant="danger"
-                                                    onClick={cancelRow}
-                                                >
-                                                    <i class="bi bi-x-circle-fill" /> Cancel
-                                                </Button>
+                                            <Button
+                                                className="primaryButton"
+                                                id="saveButton"
+                                                onClick={createRecord}
+                                            >
+                                                <i class="bi bi-floppy-fill" /> Save
+                                            </Button>
+                                            <Button
+                                                className="dangerButton"
+                                                id="cancelButton"
+                                                variant="danger"
+                                                onClick={cancelRow}
+                                            >
+                                                <i class="bi bi-x-circle-fill" /> Cancel
+                                            </Button>
                                         </td>
                                     </tr>
                                 )

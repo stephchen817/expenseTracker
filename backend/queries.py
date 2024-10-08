@@ -3,13 +3,14 @@ import db_connection
 import pandas as pd
 from flask import jsonify
 
-fetch_all_query = """ SELECT * from expense """
+fetch_all_query = """ SELECT category_name, TO_CHAR(amount::NUMERIC, 'FM₱9,999,999.00'), account_type, 
+                        description, expense_id FROM expense ORDER BY expense_id ASC  """
 insert_query = """ INSERT INTO  expense (category_name, amount, account_type, description)
                     VALUES (%s, %s, %s, %s) """
 update_query = """ UPDATE expense SET category_name = %s, amount = %s, 
                 account_type = %s, description = %s WHERE expense_id = %s"""
 delete_query = """ DELETE FROM expense where expense_id = %s """
-sum_query = """ SELECT SUM(amount) FROM expense """
+sum_query = """ SELECT to_char(SUM(amount)::numeric, 'FM₱9,999,999.00') FROM expense """
 
 
 # for fetching all records in the database

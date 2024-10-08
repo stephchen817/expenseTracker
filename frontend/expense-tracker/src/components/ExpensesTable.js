@@ -10,6 +10,7 @@ import Form from 'react-bootstrap/Form';
 
 function ExpensesTable() {
     const [expenses, setExpenses] = useState([]);
+    const [sum, setSum] = useState(0);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
@@ -50,9 +51,10 @@ function ExpensesTable() {
 
     const editRow = (expense) => {
         setEditExpenseId(expense.expenseId);
+
         setNewExpense({
             category: expense.category,
-            amount: expense.amount,
+            amount: String(expense.amount).replace('₱',''),
             account: expense.account,
             description: expense.description
         });
@@ -145,13 +147,19 @@ function ExpensesTable() {
     }
 
     return (
-        <div>
-            <Container>
-                <Container>
-                    <Button onClick={addRow} variant="primary"> + Add New Expenses </Button>
+        <div className="expensesTableContainer">
+            <Container class>
+                <Container className="addButtonContainer">
+                    <Button
+                        onClick={addRow}
+                        variant="primary"
+                        id="addButton"
+                    >
+                        + Add New Expenses
+                    </Button>
                 </Container>
                 <Container>
-                    <Table striped hover>
+                    <Table id="expensesTable" className="expensesTable" size="sm" hover>
                         <thead>
                             <tr>
                                 <th></th>
@@ -175,7 +183,7 @@ function ExpensesTable() {
                                         {editExpenseId === expense.expenseId ? (
                                             <>
                                                 <td>
-                                                    <Form.Select name="category" value={newExpense.category} onChange={handleInputChange}>
+                                                    <Form.Select name="category" value={newExpense.category} onChange={handleInputChange} required>
                                                         <option value="">Select a category...</option>
                                                         {categoryOptions.map((option, index) => (
                                                             <option key={index} value={option}>
@@ -185,7 +193,7 @@ function ExpensesTable() {
                                                     </Form.Select>
                                                 </td>
                                                 <td>
-                                                    <InputGroup className="mb-3">
+                                                    <InputGroup className="mb-3" required>
                                                         <InputGroup.Text>₱</InputGroup.Text>
                                                         <Form.Control
                                                             name="amount"
@@ -212,10 +220,24 @@ function ExpensesTable() {
                                                     />
                                                 </td>
                                                 <td>
-                                                    <ButtonGroup>
-                                                        <Button variant="success" onClick={editRecord}>Save</Button>
-                                                        <Button variant="danger" onClick={() => setEditExpenseId(null)}>Cancel</Button>
-                                                    </ButtonGroup>
+                                                    <Button
+                                                        id="saveButton"
+                                                        variant="success"
+                                                        className="primaryButton"
+                                                        onClick={editRecord}
+                                                    >
+                                                        <i class="bi bi-floppy-fill" />
+                                                        Save
+                                                    </Button>
+                                                    <Button
+                                                        id="cancelButton"
+                                                        className="dangerButton"
+                                                        variant="danger"
+                                                        onClick={() => setEditExpenseId(null)}
+                                                    >
+                                                        <i class="bi bi-x-circle-fill" />
+                                                        Cancel
+                                                    </Button>
                                                 </td>
                                             </>
                                         ) : (
@@ -225,20 +247,24 @@ function ExpensesTable() {
                                                 <td>{expense.account}</td>
                                                 <td>{expense.description}</td>
                                                 <td>
-                                                    <ButtonGroup>
-                                                        <Button 
-                                                            variant="primary"
-                                                            onClick={() => editRow(expense)}
-                                                        >
-                                                            Edit
-                                                        </Button>
-                                                        <Button
-                                                            variant="danger"
-                                                            onClick={() => deleteRecord(expense.expenseId)}
-                                                        >
-                                                            Delete
-                                                        </Button>
-                                                    </ButtonGroup>
+                                                    <Button
+                                                        className="primaryButton"
+                                                        id="#editButton"
+                                                        variant="primary"
+                                                        onClick={() => editRow(expense)}
+                                                    >
+                                                        <i class="bi bi-pencil-fill" />
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        className="dangerButton"
+                                                        id="#deleteButton"
+                                                        variant="danger"
+                                                        onClick={() => deleteRecord(expense.expenseId)}
+                                                    >
+                                                        <i class="bi bi-trash-fill" />
+                                                        Delete
+                                                    </Button>
                                                 </td>
                                             </>
                                         )}
@@ -268,7 +294,7 @@ function ExpensesTable() {
                                         <td>
                                             <InputGroup className="mb-3">
                                                 <InputGroup.Text>₱</InputGroup.Text>
-                                                <Form.Control name="amount" onChange={handleInputChange} />
+                                                <Form.Control name="amount" onChange={handleInputChange} placeholder='xxx.xx' />
                                             </InputGroup>
                                         </td>
                                         <td>
@@ -283,14 +309,25 @@ function ExpensesTable() {
                                         </td>
                                         <td>
                                             <InputGroup>
-                                                <Form.Control name="description" onChange={handleInputChange} />
+                                                <Form.Control name="description" onChange={handleInputChange} placeholder='Enter description...' />
                                             </InputGroup>
                                         </td>
                                         <td>
-                                            <ButtonGroup>
-                                                <Button onClick={createRecord}>Save</Button>
-                                                <Button variant="danger" onClick={cancelRow}>Cancel</Button>
-                                            </ButtonGroup>
+                                                <Button 
+                                                    className="primaryButton"
+                                                    id="saveButton"
+                                                    onClick={createRecord}
+                                                >
+                                                    <i class="bi bi-floppy-fill" /> Save
+                                                </Button>
+                                                <Button 
+                                                    className="dangerButton"
+                                                    id="cancelButton"
+                                                    variant="danger"
+                                                    onClick={cancelRow}
+                                                >
+                                                    <i class="bi bi-x-circle-fill" /> Cancel
+                                                </Button>
                                         </td>
                                     </tr>
                                 )

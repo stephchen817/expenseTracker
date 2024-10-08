@@ -1,0 +1,81 @@
+.App {
+    background-color: #F4F5F9;
+    color: #394955;
+    font-family: "Inter", sans-serif;
+}
+
+h1 {
+    color: #0196D3;
+    padding: 10px;
+    padding-bottom: 20px;
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 800;
+    font-style: normal;
+}
+
+.primaryButton {
+    text-align: center;
+    border: none;
+    width: 93px;
+    margin-bottom: 5px;
+    margin-right: 10px;
+    background-color: #0196D3;
+}
+
+.dangerButton {
+    border: none;
+    background-color: #FF3561;
+}
+
+i {
+    margin-right: 6px;
+}
+
+.totalContainer {
+    align-items: flex-end;
+}
+
+.totalCard {
+    border: none;
+    color: #394955;
+    background-color: #EFF4F5;
+}
+
+.totalExpense {
+    float: right;
+}
+
+.addButtonContainer {
+    border: none;
+    padding-bottom: 50px;
+}
+
+.expensesTable th,
+.expensesTable td {
+    text-align: center;
+    padding: 15px;
+    background-color: #e6eef1;
+    color: #394955;
+    border: none;
+}
+
+.expensesTable th {
+    text-align: center;
+}
+
+.table.expensesTable {
+    border-radius: 15px;
+    background-color: #e6eef1;
+}
+
+#addButton {
+    background-color:#0196D3;
+    border: none;
+    float: right;
+}
+
+#saveButton {
+    width: 93px;
+    margin-bottom: 5px;
+}

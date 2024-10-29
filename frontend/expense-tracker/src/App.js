@@ -4,7 +4,6 @@ import LandingPage from './container/LandingPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/App.css';
-import './index.css';
 
 function App() {
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
 import Table from 'react-bootstrap/Table';
@@ -23,6 +23,7 @@ function ExpensesTable({ onTotalUpdate }) {
     const [selectedIds, setSelectedIds] = useState([]);
     const [editExpenseId, setEditExpenseId] = useState(null);
     const [validate, setValidate] = useState('');
+    const newRowRef = useRef(null);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -54,6 +55,12 @@ function ExpensesTable({ onTotalUpdate }) {
 
     const addRow = () => {
         setShowNewRow(true);
+
+        setTimeout(() => {
+            if (newRowRef.current) {
+                newRowRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 0);
     };
 
     const cancelRow = () => {
@@ -88,7 +95,6 @@ function ExpensesTable({ onTotalUpdate }) {
         'Others'
     ];
 
-
     const fetchAllRecords = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:5000/fetchAllRecords');
@@ -105,6 +111,7 @@ function ExpensesTable({ onTotalUpdate }) {
         fetchAllRecords();
     }, []);
 
+
     const createRecord = async () => {
         if (validateFields()) {
             try {
@@ -117,6 +124,7 @@ function ExpensesTable({ onTotalUpdate }) {
                 // Automatically refreshes the table when a new record is added
                 fetchAllRecords();
                 onTotalUpdate();
+
             } catch (error) {
                 console.error('Error saving data:', error);
                 alert('Failed to save record!')
@@ -299,7 +307,7 @@ function ExpensesTable({ onTotalUpdate }) {
                             )}
                             {
                                 showNewRow && (
-                                    <tr>
+                                    <tr ref={newRowRef}>
                                         <td>
                                             <Form.Check disabled />
                                         </td>

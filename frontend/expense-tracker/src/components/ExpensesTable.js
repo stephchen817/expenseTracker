@@ -9,7 +9,6 @@ import Form from 'react-bootstrap/Form';
 
 function ExpensesTable({ onTotalUpdate }) {
     const [expenses, setExpenses] = useState([]);
-    const [sum, setSum] = useState(0);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
@@ -48,10 +47,16 @@ function ExpensesTable({ onTotalUpdate }) {
             setValidate('Please fill up required fields!');
             return false;
         }
+
+        if (isNaN(amount) || amount <= 0){
+            alert('Amount must not be a negative number!');
+            setValidate('Please enter a valid amount!');
+            return false;
+        }
+
         setValidate('');
         return true;
     };
-
 
     const addRow = () => {
         setShowNewRow(true);

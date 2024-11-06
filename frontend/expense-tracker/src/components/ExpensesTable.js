@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
@@ -8,6 +9,11 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 
 function ExpensesTable({ onTotalUpdate }) {
+    const apiClient = axios.create({
+        baseURL: API_BASE_URL,
+        timeout: 10000, 
+    });
+
     const [expenses, setExpenses] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -21,7 +27,7 @@ function ExpensesTable({ onTotalUpdate }) {
     });
     const [selectedIds, setSelectedIds] = useState([]);
     const [editExpenseId, setEditExpenseId] = useState(null);
-    const [validate, setValidate] = useState('');
+    const [setValidate] = useState('');
     const newRowRef = useRef(null);
 
     const handleInputChange = (e) => {
@@ -100,9 +106,9 @@ function ExpensesTable({ onTotalUpdate }) {
         'Others'
     ];
 
-    const fetchAllRecords = async () => {
+    const fetchAllRecords = useCallback(async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:5000/fetchAllRecords');
+            const response = await apiClient.get('/fetchAllRecords');
             const data = JSON.parse(response.data.data);
             setExpenses(data);
         } catch (err) {
@@ -110,17 +116,17 @@ function ExpensesTable({ onTotalUpdate }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [apiClient]);
 
     useEffect(() => {
         fetchAllRecords();
-    }, []);
+    }, [fetchAllRecords]);
 
 
     const createRecord = async () => {
         if (validateFields()) {
             try {
-                const response = await axios.post('http://127.0.0.1:5000/createRecord', newExpense);
+                const response = await apiClient.post('/createRecord', newExpense);
                 alert('Record saved successfully!');
                 setData([...data, newExpense]);
                 setNewExpense({ category: '', amount: '', account: '', description: '' });
@@ -129,7 +135,7 @@ function ExpensesTable({ onTotalUpdate }) {
                 // Automatically refreshes the table when a new record is added
                 fetchAllRecords();
                 onTotalUpdate();
-
+ 
             } catch (error) {
                 console.error('Error saving data:', error);
                 alert('Failed to save record!')
@@ -139,8 +145,9 @@ function ExpensesTable({ onTotalUpdate }) {
 
     const deleteRecord = async (id) => {
         try {
-            const url = `http://127.0.0.1:5000/deleteRecord/${id}`;
-            const response = await axios.delete(url);
+            // const url = `http://127.0.0.1:5000/deleteRecord/${id}`;
+            // const response = await axios.delete(url);
+            const response = await apiClient.delete(`/deleteRecord/${id}`);
             setExpenses(expenses.filter(expense => expense.expenseId !== id));
             console.log('Response:', response.data);
             alert('Record successfully deleted!');
@@ -157,7 +164,8 @@ function ExpensesTable({ onTotalUpdate }) {
     const editRecord = async () => {
         if (validateFields()) {
             try {
-                const response = await axios.post(`http://127.0.0.1:5000/editRecord/${editExpenseId}`, newExpense);
+                // const response = await axios.post(`http://127.0.0.1:5000/editRecord/${editExpenseId}`, newExpense);
+                const response = await apiClient.post(`/editRecord/${editExpenseId}`, newExpense);
                 alert('Record successfully updated!');
 
                 // Automatically refreshes the records and the total displayed

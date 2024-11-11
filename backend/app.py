@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, render_template
 from flask_cors import CORS
-from queries import fetch_all, create_expsense, update_expense, delete_expense, sum_expenses
+from queries import fetch_all, create_expense, update_expense, delete_expense, sum_expenses
 
 app = Flask(__name__)
 CORS(app)
@@ -23,7 +23,7 @@ def insert_new_record():
     amount = data['amount']
     account = data['account']
     description = data['description']
-    response = create_expsense(category, amount, account, description)
+    response = create_expense(category, amount, account, description)
     return response
 
 # Update existing record in the database

@@ -5,7 +5,7 @@ from flask import jsonify
 
 fetch_all_query = """ SELECT category_name, TO_CHAR(amount::NUMERIC, 'FM₱9,999,999.00'), account_type, 
                         description, expense_id FROM expense ORDER BY expense_id ASC  """
-insert_query = """ INSERT INTO  expense (category_name, amount, account_type, description)
+insert_query = """ INSERT INTO expense (category_name, amount, account_type, description)
                     VALUES (%s, %s, %s, %s) """
 update_query = """ UPDATE expense SET category_name = %s, amount = %s, 
                 account_type = %s, description = %s WHERE expense_id = %s"""
@@ -57,7 +57,7 @@ def fetch_all():
 
         
 # insert new record in the database
-def create_expsense(categoryName, amount, accountType, description):
+def create_expense(categoryName, amount, accountType, description):
     connection = db_connection.get_db_connection()
     cursor = connection.cursor()
 

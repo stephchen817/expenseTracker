@@ -145,8 +145,6 @@ function ExpensesTable({ onTotalUpdate }) {
 
     const deleteRecord = async (id) => {
         try {
-            // const url = `http://127.0.0.1:5000/deleteRecord/${id}`;
-            // const response = await axios.delete(url);
             const response = await apiClient.delete(`/deleteRecord/${id}`);
             setExpenses(expenses.filter(expense => expense.expenseId !== id));
             console.log('Response:', response.data);
@@ -164,7 +162,6 @@ function ExpensesTable({ onTotalUpdate }) {
     const editRecord = async () => {
         if (validateFields()) {
             try {
-                // const response = await axios.post(`http://127.0.0.1:5000/editRecord/${editExpenseId}`, newExpense);
                 const response = await apiClient.post(`/editRecord/${editExpenseId}`, newExpense);
                 alert('Record successfully updated!');
 

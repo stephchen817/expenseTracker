@@ -27,7 +27,7 @@ function ExpensesTable({ onTotalUpdate }) {
     });
     const [selectedIds, setSelectedIds] = useState([]);
     const [editExpenseId, setEditExpenseId] = useState(null);
-    const [setValidate] = useState('');
+    const [validate,setValidate] = useState('');
     const newRowRef = useRef(null);
 
     const handleInputChange = (e) => {
@@ -48,13 +48,15 @@ function ExpensesTable({ onTotalUpdate }) {
 
     const validateFields = () => {
         const { category, amount, account } = newExpense;
+
         if (!category || !amount || !account) {
             alert('Category, amount, and account are required fields!');
             setValidate('Please fill up required fields!');
             return false;
         }
 
-        if (isNaN(amount) || amount <= 0){
+        var clean_amount = parseFloat(String(amount).replace(',', ''));
+        if (isNaN(clean_amount) || clean_amount <= 0){
             alert('Amount must not be a negative number!');
             setValidate('Please enter a valid amount!');
             return false;
